@@ -80,7 +80,8 @@ def plot_one_box(x, angle, im, color=(128, 128, 128), label=None, line_thickness
     h = int(x[3] - x[1])
     rect = ((cx, cy), (w, h), angle)
     box = cv2.boxPoints(rect)
-    box = np.int0(box)
+    box = np.intp(box) ### ETFS
+    ### box = np.int0(box)
     cv2.drawContours(im, contours=[box], contourIdx=-1, color=color, thickness=tl, lineType=cv2.LINE_AA)
     if label:
         tf = max(tl - 1, 1)  # font thickness

@@ -1,3 +1,7 @@
+# python3 detect.py --source 0 --weights m640rot.pt --imgsz 640 --conf-thres 0.75
+
+# python3 detect.py --source 0 --weights best.pt --imgsz 640 --conf-thres 0.75
+
 """Run inference with a YOLOv5 model on images, videos, directories, streams
 
 Usage:

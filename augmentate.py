@@ -1,3 +1,11 @@
+### ETFS
+# mkdir labels
+# mkdir images
+
+# python3 augmentate.py --bg cubes\cubes --obj cubes
+
+# python3 augmentate.py --bg cubes\bg --obj cubes
+
 import argparse
 import cv2
 import os
@@ -10,6 +18,10 @@ import time
 NAMES = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
          'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
          'U', 'V', 'W', 'X', 'Y', 'Z']
+
+#NAMES = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+#         'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+#         'U', 'V', 'W', 'X', 'Y', 'Z', '0'] ### ETFS acrescentei '0'
 
 cube_list = []
 cube_names = []
@@ -47,6 +59,13 @@ def rotation(image, angleInDegrees):
 
     outImg = cv2.warpAffine(image, rot, (b_w, b_h), flags=cv2.INTER_LINEAR)
     return outImg
+
+def delete_file(file_path):
+    try:
+        os.remove(file_path)
+        print("Arquivo excluído:", file_path)
+    except OSError:
+        pass
 
 def writeYOLOAnnotation(textfile, idx, bb, angle):
     name_index = NAMES.index(os.path.splitext(cube_names[idx])[0])          
@@ -92,7 +111,6 @@ def updt(total, progress):
 
 def main(opt):
 
-
     bg_rect = [100, 255, 1700, 700]
     background_dir = os.getcwd() + "/"+ opt.bg
     backgrounds = load_images_from_folder(background_dir, background_list, background_names)
@@ -106,6 +124,8 @@ def main(opt):
     for x in range(NUM_TOTAL_VARIATIONS):
         image_name = str(x).zfill(5)
         textfile_name = str(x).zfill(5) +".txt"
+        textfile = os.getcwd() + "/labels/" + textfile_name
+        delete_file(textfile)
         imagefile_name = str(x).zfill(5) +".jpg"
 
         num_of_samples = random.randint(1,15)
@@ -138,15 +158,12 @@ def main(opt):
             # resize image
             object = cv2.resize(object, dim, interpolation = cv2.INTER_AREA)
 
-
-
             ### RANDOM BLUR ###
             if random.randint(0,1) == 1:
                 ksize = random.randint(1,10 )
                 if(ksize % 2 != 1):
                     ksize = ksize+1
                 object = cv2.GaussianBlur(object,(ksize,ksize),0)
-
 
             ### RANDOM ROTATING ###
             # mu, sigma = 0, 90
@@ -179,8 +196,6 @@ def main(opt):
             y1_, y2_ = int(rand_pos[1]-h/2),  int(rand_pos[1]+h/2)
             x1_, x2_ = int(rand_pos[0]-w/2), int(rand_pos[0]+w/2)
 
-
-
             trans_indices = rotated[...,3] != 0 # Where not transparent
             alpha_s = rotated[:, :, 3] / 255.0
             alpha_l = 1.0 - alpha_s
@@ -191,8 +206,6 @@ def main(opt):
 
             # cv2.imshow("Rotated", target_im)
             
-
-
             ### CREATING BOUNDING BOX ###
 
             bb = [(x1+(x2-x1)/2)/background.shape[1], (y1+(y2-y1)/2)/background.shape[0], (x2_-x1_)/background.shape[1], (y2_-y1_)/background.shape[0]]
@@ -201,19 +214,14 @@ def main(opt):
             #cv2.imshow("Rotated", result_img)
             #cv2.waitKey(0)
 
-
             rot_degree = rot_degree%90
             ### WRITE ANNOTATION TO FILE ###
-            textfile = os.getcwd() + "/labels/" + textfile_name
             writeYOLOAnnotation(textfile, idx, bb, rot_degree)
-        
         
         # Create annotation txt even though there are no objects
         if(num_of_samples == 0):
-            textfile = os.getcwd() + "/labels/" + textfile_name
             with open(textfile, 'a') as the_file:
                 the_file.write(' ')
-         
                    
         file = "images/" + imagefile_name
 
@@ -221,6 +229,11 @@ def main(opt):
 
         cv2.imwrite(file, res)
         updt(NUM_TOTAL_VARIATIONS, x)
+
+        ### ETFS
+        if (cv2.waitKey(1) & 0xFF) == ord('q'):
+            cv2.destroyAllWindows()
+            break 
 
     print("\n")
 

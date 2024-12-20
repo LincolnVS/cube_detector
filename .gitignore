@@ -1,0 +1,8 @@
+annotated_images/*
+images/*
+label/*
+*.cache
+*.cache.npy
+labels/*
+
+runs/*

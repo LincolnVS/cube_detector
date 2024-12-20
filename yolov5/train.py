@@ -1,8 +1,21 @@
+# python3 train.py --img 640 --batch 3 --epochs 100 --data aug_cube.yaml --weights yolov5m.pt
+
+# python3 train.py --img 640 --batch 3 --epochs 100 --data aug_cube.yaml --weights m640rot.pt
+
+# python3 train.py --img 640 --batch 3 --epochs 100 --data aug_cube.yaml
+
+# python3 train.py --img 640 --batch 3 --epochs 3 --data aug_cube.yaml --weights yolov5s.pt
+
+# conda run -n myenv python train.py --img 640 --batch 3 --epochs 3 --data aug_cube.yaml --weights yolov5m.pt
+
 """Train a YOLOv5 model on a custom dataset
 
 Usage:
     $ python path/to/train.py --data coco128.yaml --weights yolov5s.pt --img 640
 """
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning) ## REMOVER FUTUROS WARNINGS CHATOS
+
 
 import argparse
 import logging
@@ -250,7 +263,8 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
     # nw = min(nw, (epochs - start_epoch) / 2 * nb)  # limit warmup to < 1/2 of training
     last_opt_step = -1
     maps = np.zeros(nc)  # mAP per class
-    results = (0, 0, 0, 0, 0, 0, 0, 0)  # P, R, mAP@.5, mAP@.5-.95, val_loss(box, obj, cls, angle)    scheduler.last_epoch = start_epoch - 1  # do not move
+    results = (0, 0, 0, 0, 0, 0, 0, 0)  # P, R, mAP@.5, mAP@.5-.95, val_loss(box, obj, cls, angle)    
+    scheduler.last_epoch = start_epoch - 1  # do not move
     scaler = amp.GradScaler(enabled=cuda)
     compute_loss = ComputeLoss(model)  # init loss class
     LOGGER.info(f'Image sizes {imgsz} train, {imgsz} val\n'
